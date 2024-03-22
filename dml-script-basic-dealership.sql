@@ -19,6 +19,31 @@ INSERT INTO customer (
 SELECT * FROM customer;
 -- Okay now we have 5 customers in our database
 
+-- Creating a procedure to add new customers
+CREATE OR REPLACE PROCEDURE new_customer (
+	given_first_name VARCHAR(50),
+	given_last_name VARCHAR(50),
+	given_address VARCHAR(50)
+) LANGUAGE plpgsql
+AS $$
+BEGIN
+	INSERT INTO customer (
+	first_name,
+	last_name ,
+	address 
+	) VALUES (
+		given_first_name, 
+		given_last_name,
+		given_address
+		);
+END;
+$$;
+
+--test by adding a random person
+CALL new_customer('test-cust', 'last', '111 simple test'); 
+SELECT * FROM customer; -- It works!
+
+
 -- Adding to salesperson
 SELECT * FROM salesperson;
 
@@ -59,9 +84,41 @@ INSERT INTO car (
 	('Ford', 'Model -T', 'N/A', 1),
 	('Toyota', 'Supra', 'White', 4),
 	('Toyota','Shogi','Black/White',5);
-	
+
+-- Lets make a procedure to add cars!
+CREATE OR REPLACE PROCEDURE add_car (
+	given_make VARCHAR(20),
+	given_model VARCHAR(20),
+	given_color VARCHAR(20),
+	given_cust_id INTEGER
+) LANGUAGE plpgsql
+AS $$
+BEGIN
+	INSERT INTO car (
+	make, 
+	model, 
+	color, 
+	customer_id
+	) VALUES (
+		given_make,
+		given_model,
+		given_color,
+		given_cust_id
+		);
+END;
+$$;
+
+--Try giving Ben (cust-3) a Chevy Colorado in green
+CALL add_car('Chevrolet', 'Colorado', 'Green', 3);
+
 SELECT * FROM car;
-		
+SELECT c.first_name, c.last_name, car.make, car.model 
+FROM car car
+JOIN customer c
+ON car.customer_id = c.customer_id 
+ORDER BY c.first_name ASC;
+-- And now Ben has 2 cars!
+
 -- Now that we have 6 cars... we can add invoices for some of them!
 -- Lets say:
 -- Ben bought his Accord for... $25,000
